@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sala de Reunioes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#f5f5f5;-webkit-text-size-adjust:none;}
+.app{padding:16px 16px 80px;max-width:600px;margin:0 auto;}
+.hdr-title{font-size:28px;font-weight:bold;color:#1a1a1a;margin-bottom:4px;}
+.hdr-sub{font-size:17px;color:#555;margin-bottom:1rem;}
+.unit-tabs{display:flex;gap:8px;margin-bottom:1.25rem;}
+.unit-tab{flex:1;padding:14px 4px;border:2px solid #ccc;border-radius:10px;background:#fff;
+  font-size:18px;cursor:pointer;color:#555;text-align:center;font-family:Arial,sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-weight:bold;}
+.unit-tab.u1.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8;}
+.unit-tab.u2.active{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+.nav-tabs{display:flex;gap:8px;margin-bottom:1.5rem;}
+.nav-tab{flex:1;padding:14px 4px;border:2px solid #ccc;border-radius:32px;background:#fff;
+  font-size:18px;cursor:pointer;color:#555;text-align:center;font-family:Arial,sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:52px;}
+.nav-tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:bold;}
+.sec{display:none;}
+.sec.on{display:block;}
+.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
+.frow{margin-bottom:18px;}
+.flabel{display:block;font-size:19px;font-weight:bold;color:#444;margin-bottom:8px;}
+input[type=text],input[type=date],input[type=time],select,textarea{
+  width:100%;font-size:19px;min-height:54px;border-radius:10px;
+  border:2px solid #ccc;background:#fff;color:#1a1a1a;padding:0 14px;font-family:Arial,sans-serif;}
+textarea{padding:14px;min-height:80px;resize:none;line-height:1.5;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn-confirm{display:block;width:100%;padding:16px;color:#fff;border:none;
+  border-radius:10px;font-size:19px;font-weight:bold;cursor:pointer;text-align:center;
+  margin-top:8px;font-family:Arial,sans-serif;touch-action:manipulation;min-height:56px;
+  -webkit-tap-highlight-color:transparent;}
+.btn-confirm.u1{background:#1d4ed8;}
+.btn-confirm.u2{background:#7c3aed;}
+.alert{padding:14px;border-radius:10px;font-size:18px;margin-bottom:1rem;display:none;line-height:1.5;}
+.alert.ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb;}
+.alert.err{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem;}
+.stat{background:#f0f0f0;border-radius:10px;padding:14px 8px;text-align:center;}
+.stat-n{font-size:28px;font-weight:bold;color:#1a1a1a;}
+.stat-l{font-size:15px;color:#555;margin-top:3px;}
+.wnav{display:flex;align-items:center;gap:8px;margin-bottom:1rem;}
+.wnav button{background:#fff;border:2px solid #ccc;border-radius:10px;padding:10px 18px;
+  cursor:pointer;color:#1a1a1a;font-size:24px;flex-shrink:0;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:50px;min-height:50px;}
+.wlabel{font-size:19px;font-weight:bold;color:#1a1a1a;flex:1;text-align:center;}
+.dcol{background:#fff;border:1px solid #ddd;border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.dhdr{padding:13px 14px;background:#f0f0f0;border-bottom:1px solid #ddd;
+  display:flex;align-items:center;justify-content:space-between;}
+.dhdr.hoje{background:#fef9c3;}
+.dname{font-size:19px;font-weight:bold;color:#1a1a1a;}
+.dhoje-badge{font-size:14px;font-weight:bold;color:#854d0e;background:#fef08a;padding:3px 10px;border-radius:20px;}
+.bpill{border-radius:8px;padding:11px 13px;margin:8px;font-size:17px;font-weight:bold;line-height:1.5;}
+.bpill.u1{background:#dbeafe;border:1px solid #93c5fd;color:#1e3a8a;}
+.bpill.u2{background:#ede9fe;border:1px solid #c4b5fd;color:#4c1d95;}
+.bpill .bsub{font-size:14px;font-weight:normal;display:block;margin-top:3px;}
+.bpill.u1 .bsub{color:#1e40af;}
+.bpill.u2 .bsub{color:#6d28d9;}
+.empty-day{padding:13px 14px;font-size:17px;color:#999;font-style:italic;}
+.litem{background:#fff;border-left:5px solid #ccc;border-radius:0 10px 10px 0;
+  border-top:1px solid #ddd;border-right:1px solid #ddd;border-bottom:1px solid #ddd;
+  padding:15px;margin-bottom:12px;}
+.litem.u1{border-left-color:#1d4ed8;}
+.litem.u2{border-left-color:#7c3aed;}
+.ltitle{font-size:20px;font-weight:bold;color:#1a1a1a;margin-bottom:6px;}
+.lmeta{font-size:17px;color:#555;line-height:1.6;}
+.lunit{font-size:14px;font-weight:bold;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:6px;}
+.lunit.u1{background:#dbeafe;color:#1d4ed8;}
+.lunit.u2{background:#ede9fe;color:#7c3aed;}
+.badge{display:inline-block;font-size:14px;padding:4px 12px;border-radius:20px;
+  font-weight:bold;margin-top:6px;background:#d1fae5;color:#065f46;}
+.badge.past{background:#f0f0f0;color:#555;}
+.btn-cancel{margin-top:12px;display:block;width:100%;background:#fff;color:#b91c1c;
+  border:2px solid #b91c1c;padding:13px;font-size:17px;border-radius:10px;cursor:pointer;
+  font-family:Arial,sans-serif;text-align:center;font-weight:bold;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:50px;}
+.empty{text-align:center;padding:2rem 1rem;color:#999;font-size:19px;}
+.fsel{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.fsel select{flex:1;font-size:17px;min-height:50px;min-width:120px;}
+.divisor{border:none;border-top:1px solid #ddd;margin:16px 0;}
+.sec-label{font-size:14px;font-weight:bold;color:#888;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
+.legend{display:flex;gap:12px;margin-bottom:1rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:15px;color:#555;}
+.legend-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.legend-dot.u1{background:#1d4ed8;}
+.legend-dot.u2{background:#7c3aed;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr-title">Sala de Reunioes</div>
+  <div class="hdr-sub">Agendamento online</div>
+
+  <div class="unit-tabs">
+    <button class="unit-tab u1 active" id="ubtn-1" onclick="trocarUnidade(1)">Unidade 1</button>
+    <button class="unit-tab u2" id="ubtn-2" onclick="trocarUnidade(2)">Unidade 2</button>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="btn-agendar" onclick="trocarAba('agendar')">+ Novo</button>
+    <button class="nav-tab" id="btn-semana" onclick="trocarAba('semana')">Semana</button>
+    <button class="nav-tab" id="btn-lista" onclick="trocarAba('lista')">Todos</button>
+  </div>
+
+  <div id="t-agendar" class="sec on">
+    <div id="alerta" class="alert"></div>
+    <div class="card">
+      <div class="sec-label">Quem esta agendando</div>
+      <div class="frow">
+        <label class="flabel" for="f-nome">Seu nome</label>
+        <input type="text" id="f-nome" placeholder="Ex: Ana, Carla, Marcos...">
+      </div>
+      <div class="frow">
+        <label class="flabel" for="f-resp">Setor</label>
+        <select id="f-resp">
+          <option value="">Selecione</option>
+          <option>Coordenacao</option>
+          <option>RH / DP</option>
+          <option>Secretaria</option>
+          <option>Direcao</option>
+        </select>
+      </div>
+      <hr class="divisor">
+      <div class="sec-label">Dados da reuniao</div>
+      <div class="frow">
+        <label class="flabel" for="f-titulo">Titulo / Assunto</label>
+        <input type="text" id="f-titulo" placeholder="Ex: Reuniao pedagogica...">
+      </div>
+      <div class="frow">
+        <label class="flabel" for="f-data">Data</label>
+        <input type="date" id="f-data">
+      </div>
+      <div class="fgrid frow">
+        <div>
+          <label class="flabel" for="f-ini">Inicio</label>
+          <input type="time" id="f-ini" step="1800">
+        </div>
+        <div>
+          <label class="flabel" for="f-fim">Termino</label>
+          <input type="time" id="f-fim" step="1800">
+        </div>
+      </div>
+      <div class="frow">
+        <label class="flabel" for="f-obs">Observacoes (opcional)</label>
+        <textarea id="f-obs" placeholder="Participantes, equipamentos..."></textarea>
+      </div>
+      <button class="btn-confirm u1" id="btn-confirmar" onclick="agendar()">Confirmar agendamento</button>
+    </div>
+  </div>
+
+  <div id="t-semana" class="sec">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot u1"></div>Unidade 1</div>
+      <div class="legend-item"><div class="legend-dot u2"></div>Unidade 2</div>
+    </div>
+    <div class="wnav">
+      <button onclick="wOff--;renderSemana();">&#8249;</button>
+      <span class="wlabel" id="wlbl"></span>
+      <button onclick="wOff++;renderSemana();">&#8250;</button>
+    </div>
+    <div id="dcols"></div>
+  </div>
+
+  <div id="t-lista" class="sec">
+    <div class="stats" id="stats"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot u1"></div>Unidade 1</div>
+      <div class="legend-item"><div class="legend-dot u2"></div>Unidade 2</div>
+    </div>
+    <div class="fsel">
+      <select id="fu" onchange="lista()">
+        <option value="">Todas as unidades</option>
+        <option value="1">Unidade 1</option>
+        <option value="2">Unidade 2</option>
+      </select>
+      <select id="fr" onchange="lista()">
+        <option value="">Todos os setores</option>
+        <option>Coordenacao</option>
+        <option>RH / DP</option>
+        <option>Secretaria</option>
+        <option>Direcao</option>
+      </select>
+      <select id="fp" onchange="lista()">
+        <option value="f">Proximos</option>
+        <option value="t">Todos</option>
+        <option value="p">Anteriores</option>
+      </select>
+    </div>
+    <div id="lcont"></div>
+  </div>
+</div>
+
+<script>
+var wOff=0, dados=[], unidadeAtual=1;
+var SK='sala-reunioes-escola-v3';
+
+function load(){try{return JSON.parse(localStorage.getItem(SK))||[];}catch(e){return[];}}
+function save(d){try{localStorage.setItem(SK,JSON.stringify(d));}catch(e){}}
+dados=load();
+
+function trocarUnidade(u){
+  unidadeAtual=u;
+  document.getElementById('ubtn-1').className='unit-tab u1'+(u===1?' active':'');
+  document.getElementById('ubtn-2').className='unit-tab u2'+(u===2?' active':'');
+  document.getElementById('btn-confirmar').className='btn-confirm u'+(u===1?'1':'2');
+  var aba=document.querySelector('.nav-tab.active');
+  if(aba){
+    var n=aba.id.replace('btn-','');
+    if(n==='semana')renderSemana();
+    if(n==='lista'){lista();renderStats();}
+  }
+}
+
+function trocarAba(n){
+  ['agendar','semana','lista'].forEach(function(x){
+    document.getElementById('t-'+x).className='sec'+(x===n?' on':'');
+    document.getElementById('btn-'+x).className='nav-tab'+(x===n?' active':'');
+  });
+  window.scrollTo(0,0);
+  if(n==='semana')renderSemana();
+  if(n==='lista'){lista();renderStats();}
+}
+
+function alerta(msg,tipo){
+  var el=document.getElementById('alerta');
+  el.textContent=msg;
+  el.className='alert '+(tipo==='ok'?'ok':'err');
+  el.style.display='block';
+  setTimeout(function(){el.style.display='none';},5000);
+}
+
+function toMin(t){var p=t.split(':');return +p[0]*60+ +p[1];}
+
+function conflito(u,dt,ini,fim){
+  return dados.some(function(a){
+    return a.unidade===u&&a.date===dt&&toMin(ini)<toMin(a.fim)&&toMin(fim)>toMin(a.ini);
+  });
+}
+
+function hoje(){return new Date().toISOString().split('T')[0];}
+
+function agendar(){
+  var nome=document.getElementById('f-nome').value.trim();
+  var re=document.getElementById('f-resp').value;
+  var ti=document.getElementById('f-titulo').value.trim();
+  var dt=document.getElementById('f-data').value;
+  var ini=document.getElementById('f-ini').value;
+  var fim=document.getElementById('f-fim').value;
+  var ob=document.getElementById('f-obs').value.trim();
+  if(!nome||!re||!ti||!dt||!ini||!fim)return alerta('Preencha todos os campos obrigatorios.','err');
+  if(toMin(ini)>=toMin(fim))return alerta('O horario de termino deve ser apos o inicio.','err');
+  if(conflito(unidadeAtual,dt,ini,fim))return alerta('Conflito de horario! Ja existe uma reuniao nesta unidade neste periodo.','err');
+  dados.push({id:Date.now(),unidade:unidadeAtual,nome:nome,titulo:ti,resp:re,date:dt,ini:ini,fim:fim,obs:ob});
+  save(dados);
+  alerta('Agendamento confirmado na Unidade '+unidadeAtual+'!','ok');
+  document.getElementById('f-nome').value='';
+  document.getElementById('f-titulo').value='';
+  document.getElementById('f-resp').value='';
+  document.getElementById('f-ini').value='';
+  document.getElementById('f-fim').value='';
+  document.getElementById('f-obs').value='';
+  document.getElementById('f-data').value=hoje();
+}
+
+function semDates(off){
+  var now=new Date(),day=now.getDay(),mon=new Date(now);
+  mon.setDate(now.getDate()-(day===0?6:day-1)+off*7);
+  return Array.from({length:5},function(_,i){var d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+
+function renderSemana(){
+  var days=semDates(wOff);
+  var dnames=['Segunda','Terca','Quarta','Quinta','Sexta'];
+  var td=hoje();
+  var d0=days[0],d4=days[4];
+  document.getElementById('wlbl').textContent=d0.getDate()+'/'+(d0.getMonth()+1)+' - '+d4.getDate()+'/'+(d4.getMonth()+1);
+  document.getElementById('dcols').innerHTML=days.map(function(d,i){
+    var ds=d.toISOString().split('T')[0];
+    var isH=ds===td;
+    var db=dados.filter(function(a){return a.date===ds;}).sort(function(a,b){return a.ini.localeCompare(b.ini);});
+    var c=db.length?db.map(function(a){
+      var uc='u'+a.unidade;
+      return '<div class="bpill '+uc+'">[U'+a.unidade+'] '+a.titulo+
+        '<span class="bsub">'+a.ini+' - '+a.fim+' &bull; '+a.nome+'</span></div>';
+    }).join(''):'<div class="empty-day">Sem reunioes</div>';
+    return '<div class="dcol"><div class="dhdr'+(isH?' hoje':'')+'">'+
+      '<span class="dname">'+dnames[i]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</span>'+
+      (isH?'<span class="dhoje-badge">Hoje</span>':'')+
+      '</div>'+c+'</div>';
+  }).join('');
+}
+
+function renderStats(){
+  var td=hoje();
+  var wdays=semDates(0).map(function(d){return d.toISOString().split('T')[0];});
+  var hj=dados.filter(function(a){return a.date===td;}).length;
+  var sm=dados.filter(function(a){return wdays.indexOf(a.date)>=0;}).length;
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><div class="stat-n">'+hj+'</div><div class="stat-l">Hoje</div></div>'+
+    '<div class="stat"><div class="stat-n">'+sm+'</div><div class="stat-l">Esta semana</div></div>'+
+    '<div class="stat"><div class="stat-n">'+dados.length+'</div><div class="stat-l">Total</div></div>';
+}
+
+function cancelar(id){
+  var ag=dados.find(function(a){return a.id===id;});
+  if(!ag)return;
+  var quem=prompt('Digite seu nome para cancelar:');
+  if(quem===null)return;
+  quem=quem.trim();
+  if(!quem){
+    alert('Nome nao informado. Cancelamento nao realizado.');
+    return;
+  }
+  if(quem.toLowerCase()!==ag.nome.toLowerCase()){
+    alert('Cancelamento nao permitido.\nApenas "'+ag.nome+'" pode cancelar este agendamento.');
+    return;
+  }
+  if(!confirm('Confirma o cancelamento de:\n"'+ag.titulo+'"\n'+ag.date.split('-').reverse().join('/')+' | '+ag.ini+' - '+ag.fim+'?'))return;
+  dados=dados.filter(function(a){return a.id!==id;});
+  save(dados);
+  lista();
+  renderStats();
+  renderSemana();
+}
+
+function lista(){
+  var fu=document.getElementById('fu').value;
+  var fr=document.getElementById('fr').value;
+  var fp=document.getElementById('fp').value;
+  var td=hoje();
+  var items=dados.slice();
+  if(fu)items=items.filter(function(a){return String(a.unidade)===fu;});
+  if(fr)items=items.filter(function(a){return a.resp===fr;});
+  if(fp==='f')items=items.filter(function(a){return a.date>=td;});
+  if(fp==='p')items=items.filter(function(a){return a.date<td;});
+  items.sort(function(a,b){return(a.date+a.ini).localeCompare(b.date+b.ini);});
+  var c=document.getElementById('lcont');
+  if(!items.length){c.innerHTML='<div class="empty">Nenhum agendamento encontrado</div>';return;}
+  function fmt(ds){var p=ds.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  c.innerHTML=items.map(function(a){
+    var past=a.date<td;
+    var uc='u'+a.unidade;
+    return '<div class="litem '+uc+'">'+
+      '<span class="lunit '+uc+'">Unidade '+a.unidade+'</span>'+
+      '<div class="ltitle">'+a.titulo+'</div>'+
+      '<div class="lmeta">'+fmt(a.date)+' &bull; '+a.ini+' - '+a.fim+'</div>'+
+      '<div class="lmeta">Setor: '+a.resp+'</div>'+
+      '<div class="lmeta">Agendado por: '+a.nome+'</div>'+
+      (a.obs?'<div class="lmeta" style="font-style:italic;margin-top:4px">'+a.obs+'</div>':'')+
+      '<span class="badge'+(past?' past':'')+'>'+(past?'Realizado':'Agendado')+'</span><br>'+
+      '<button class="btn-cancel" onclick="cancelar('+a.id+')">Cancelar agendamento</button>'+
+      '</div>';
+  }).join('');
+}
+
+document.getElementById('f-data').value=hoje();
+document.getElementById('f-data').min=hoje();
+renderSemana();
+lista();
+renderStats();
+</script>
+</body>
+</html>
