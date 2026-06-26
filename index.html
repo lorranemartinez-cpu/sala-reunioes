@@ -312,15 +312,16 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
           </div>
           <div class="frow">
             <label class="flabel">Segmento de interesse</label>
-            <select id="vis-segmento">
-              <option value="">Selecione</option>
-              <option>Bercario</option>
-              
-              <option>Maternal 1</option>
-              <option>Maternal 2</option>
-              <option>Maternal 3</option>
-              <option>1 Periodo</option><option>2 Periodo</option>
+            <select id="vis-segmento" onchange="visAutoUnidade()">
+              <option value="" data-unidade="">Selecione</option>
+              <option value="Bercario" data-unidade="1">Bercario</option>
+              <option value="Maternal 1" data-unidade="1">Maternal 1</option>
+              <option value="Maternal 2" data-unidade="1">Maternal 2</option>
+              <option value="Maternal 3" data-unidade="2">Maternal 3</option>
+              <option value="1 Periodo" data-unidade="2">1 Periodo</option>
+              <option value="2 Periodo" data-unidade="2">2 Periodo</option>
             </select>
+            <div id="vis-unidade-aviso" style="display:none;margin-top:10px;padding:14px 16px;border-radius:10px;font-size:17px;line-height:1.5;"></div>
           </div>
           <div class="frow">
             <label class="flabel">Agendado por</label>
@@ -835,6 +836,74 @@ function visLista(){
       '<span class="badge '+(past?'past':'ativo')+'">'+(past?'Realizado':'Agendado')+'</span><br>'+
       '<button class="btn-cancel" onclick="visCancelar('+a.id+')">Cancelar visita</button>'+
       '</div>';
+  }).join('');
+}
+ 
+ 
+// ==================== VISITA: AUTO UNIDADE ====================
+function visAutoUnidade(){
+  var sel=document.getElementById('vis-segmento');
+  var opt=sel.options[sel.selectedIndex];
+  var u=opt.getAttribute('data-unidade');
+  var aviso=document.getElementById('vis-unidade-aviso');
+  if(!u){aviso.style.display='none';return;}
+  u=parseInt(u);
+ 
+  // Salvar todos os valores preenchidos antes de qualquer alteracao
+  var nomeVal=document.getElementById('vis-resp-nome').value;
+  var telVal=document.getElementById('vis-telefone').value;
+  var criancaVal=document.getElementById('vis-crianca').value;
+  var nascVal=document.getElementById('vis-nascimento').value;
+  var agVal=document.getElementById('vis-agendador').value;
+  var obsVal=document.getElementById('vis-obs').value;
+ 
+  // Atualizar unidade automaticamente
+  visUnid=u;
+  document.getElementById('vis-ubtn-1').className='unit-tab u1'+(u===1?' active':'');
+  document.getElementById('vis-ubtn-2').className='unit-tab u2'+(u===2?' active':'');
+ 
+  // Mostrar aviso
+  var seg=document.getElementById('vis-segmento').value;
+  if(u===1){
+    aviso.style.cssText='display:block;margin-top:10px;padding:14px 16px;border-radius:10px;font-size:17px;line-height:1.5;background:#dbeafe;color:#1d4ed8;border:2px solid #93c5fd;';
+    aviso.innerHTML='<span style="font-size:20px;">&#128209;</span> <strong style="font-size:19px;">UNIDADE 1</strong><br><span style="font-size:16px;color:#1e40af;">Segmento: <strong>'+seg+'</strong></span><br><span style="font-size:14px;color:#3b82f6;">(Bercario &bull; Maternal 1 &bull; Maternal 2)</span>';
+  } else {
+    aviso.style.cssText='display:block;margin-top:10px;padding:14px 16px;border-radius:10px;font-size:17px;line-height:1.5;background:#ede9fe;color:#7c3aed;border:2px solid #c4b5fd;';
+    aviso.innerHTML='<span style="font-size:20px;">&#128209;</span> <strong style="font-size:19px;">UNIDADE 2</strong><br><span style="font-size:16px;color:#6d28d9;">Segmento: <strong>'+seg+'</strong></span><br><span style="font-size:14px;color:#8b5cf6;">(Maternal 3 &bull; 1 Periodo &bull; 2 Periodo)</span>';
+  }
+ 
+  // Atualizar slots sem limpar o formulario
+  visRenderSlotsOnly();
+ 
+  // Restaurar todos os valores
+  document.getElementById('vis-resp-nome').value=nomeVal;
+  document.getElementById('vis-telefone').value=telVal;
+  document.getElementById('vis-crianca').value=criancaVal;
+  document.getElementById('vis-nascimento').value=nascVal;
+  document.getElementById('vis-agendador').value=agVal;
+  document.getElementById('vis-obs').value=obsVal;
+ 
+  // Manter o formulario visivel se ja estava aberto
+  if(visHorarioSel){
+    document.getElementById('vis-form-visita').style.display='block';
+    document.getElementById('vis-horario-selecionado').textContent=visHorarioSel;
+  }
+}
+ 
+function visRenderSlotsOnly(){
+  var dt=document.getElementById('vis-data').value;
+  var cont=document.getElementById('vis-slots');
+  if(!dt){cont.innerHTML='<div style="color:#999;font-size:16px;">Selecione uma data acima</div>';return;}
+  var slots=getSlotsParaData(dt);
+  if(!slots.length){cont.innerHTML='<div style="color:#999;font-size:16px;">Nao ha horarios fixos para este dia da semana</div>';return;}
+  cont.innerHTML=slots.map(function(hr){
+    var bloq=isSlotBloqueado(dt,hr,visUnid);
+    var ocup=!bloq&&isSlotOcupado(dt,hr,visUnid);
+    var cls=bloq?'bloqueado-slot':ocup?'ocupado':'livre';
+    var label=bloq?'Bloqueado':ocup?'Ocupado':'Disponivel';
+    var onclick=(!bloq&&!ocup)?'onclick="visSelecionarSlot(''+hr+'')"':'';
+    return '<button class="slot-btn '+cls+'" '+onclick+' '+(bloq||ocup?'disabled':'')+'>'+
+      '<span>'+hr+'</span><span class="slot-status '+cls+'">'+label+'</span></button>';
   }).join('');
 }
  
