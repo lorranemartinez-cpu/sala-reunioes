@@ -303,8 +303,8 @@ function semDates(off) {
   return Array.from({length:5}, function(_,i) { var d=new Date(mon); d.setDate(mon.getDate()+i); return d; });
 }
 function slotsParaDia(ds) { var d=new Date(ds+'T12:00:00'); return SLOTS[d.getDay()]||[]; }
-function isOcupado(dt,hr,u) { return visDados.some(function(v){return v.date===dt&&v.horario===hr&&v.unidade==u&&v.tipo==='visita';}); }
-function isBloqueado(dt,hr) { return visDados.some(function(v){return v.date===dt&&v.horario===hr&&v.tipo==='bloqueio';}); }
+function isOcupado(dt,hr,u) { return visDados.some(function(v){return String(v.date)===String(dt)&&String(v.horario)===String(hr)&&String(v.unidade)===String(u)&&v.tipo==='visita';}); }
+function isBloqueado(dt,hr) { return visDados.some(function(v){return String(v.date)===String(dt)&&String(v.horario)===String(hr)&&v.tipo==='bloqueio';}); }
 
 function showSync(msg) {
   var b=document.getElementById('sync-bar');
@@ -413,7 +413,7 @@ function salaRenderSemana() {
   document.getElementById('sala-wlbl').textContent=days[0].getDate()+'/'+(days[0].getMonth()+1)+' - '+days[4].getDate()+'/'+(days[4].getMonth()+1);
   document.getElementById('sala-dcols').innerHTML=days.map(function(d,i){
     var ds=d.toISOString().split('T')[0],isH=ds===td;
-    var db=salaDados.filter(function(a){return a.date===ds;}).sort(function(a,b){return a.ini.localeCompare(b.ini);});
+    var db=salaDados.filter(function(a){return String(a.date)===String(ds);}).sort(function(a,b){return String(a.ini).localeCompare(String(b.ini));});
     var c=db.length?db.map(function(a){
       return '<div class="bpill u'+a.unidade+'">[U'+a.unidade+'] '+a.titulo+'<span class="bsub">'+a.ini+' - '+a.fim+' &bull; '+a.nome+'</span></div>';
     }).join(''):'<div class="empty-day">Sem reunioes</div>';
@@ -618,7 +618,7 @@ function visRenderSemana(){
   document.getElementById('vis-wlbl').textContent=days[0].getDate()+'/'+(days[0].getMonth()+1)+' - '+days[4].getDate()+'/'+(days[4].getMonth()+1);
   document.getElementById('vis-dcols').innerHTML=days.map(function(d,i){
     var ds=d.toISOString().split('T')[0],isH=ds===td;
-    var db=visDados.filter(function(a){return a.date===ds;}).sort(function(a,b){return a.horario.localeCompare(b.horario);});
+    var db=visDados.filter(function(a){return String(a.date)===String(ds);}).sort(function(a,b){return String(a.horario).localeCompare(String(b.horario));});
     var c=db.length?db.map(function(a){
       if(a.tipo==='bloqueio')return '<div class="bpill bloq">BLOQUEADO '+a.horario+' (ambas unidades)<span class="bsub">'+a.motivo+'</span></div>';
       return '<div class="bpill visita-u'+a.unidade+'">[U'+a.unidade+'] '+a.horario+' &bull; '+a.crianca+'<span class="bsub">'+a.respNome+' &bull; '+a.segmento+'</span></div>';
