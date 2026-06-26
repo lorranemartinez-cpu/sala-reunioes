@@ -11,7 +11,7 @@ body{font-family:Arial,sans-serif;background:#f5f5f5;-webkit-text-size-adjust:no
 .hdr-title{font-size:26px;font-weight:bold;color:#1a1a1a;margin-bottom:2px;}
 .hdr-sub{font-size:16px;color:#555;margin-bottom:1rem;}
 .mod-tabs{display:flex;gap:8px;margin-bottom:1.25rem;}
-.mod-tab{flex:1;padding:14px 6px;border:2px solid #ccc;border-radius:10px;background:#fff;font-size:17px;cursor:pointer;color:#555;text-align:center;font-family:Arial,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-weight:bold;line-height:1.3;}
+.mod-tab{flex:1;padding:14px 6px;border:2px solid #ccc;border-radius:10px;background:#fff;font-size:17px;cursor:pointer;color:#555;text-align:center;font-family:Arial,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-weight:bold;}
 .mod-tab.sala.active{background:#0f766e;color:#fff;border-color:#0f766e;}
 .mod-tab.visita.active{background:#b45309;color:#fff;border-color:#b45309;}
 .unit-tabs{display:flex;gap:8px;margin-bottom:1.25rem;}
@@ -103,9 +103,9 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
 .slot-extra-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:16px;}
 .slot-extra-row input{flex:1;font-size:18px;min-height:52px;}
 .slot-extra-btn{padding:0 16px;min-height:52px;border-radius:10px;border:2px solid #b45309;background:#b45309;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;font-family:Arial,sans-serif;white-space:nowrap;touch-action:manipulation;}
-.unidade-aviso{margin-top:10px;padding:14px 16px;border-radius:10px;font-size:17px;line-height:1.6;display:none;}
-.unidade-aviso.u1{background:#dbeafe;color:#1d4ed8;border:2px solid #93c5fd;}
-.unidade-aviso.u2{background:#ede9fe;color:#7c3aed;border:2px solid #c4b5fd;}
+.seg-aviso{display:none;margin-top:10px;padding:14px 16px;border-radius:10px;font-size:17px;line-height:1.6;}
+.seg-aviso.u1{background:#dbeafe;color:#1d4ed8;border:2px solid #93c5fd;}
+.seg-aviso.u2{background:#ede9fe;color:#7c3aed;border:2px solid #c4b5fd;}
 </style>
 </head>
 <body>
@@ -169,10 +169,6 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
     </div>
     <div id="sala-lista" class="sec">
       <div class="stats" id="sala-stats"></div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot u1"></div>Unidade 1</div>
-        <div class="legend-item"><div class="legend-dot u2"></div>Unidade 2</div>
-      </div>
       <div class="fsel">
         <select id="sala-fu" onchange="salaRenderLista()"><option value="">Todas as unidades</option><option value="1">Unidade 1</option><option value="2">Unidade 2</option></select>
         <select id="sala-fr" onchange="salaRenderLista()"><option value="">Todos os setores</option><option>Coordenacao</option><option>RH / DP</option><option>Psicologa / TO</option><option>Direcao</option></select>
@@ -190,6 +186,8 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
       <button class="nav-tab" id="vis-nav-semana" onclick="visAba('semana')">Semana</button>
       <button class="nav-tab" id="vis-nav-lista" onclick="visAba('lista')">Todos</button>
     </div>
+
+    <!-- AGENDAR VISITA -->
     <div id="vis-agendar" class="sec on">
       <div id="vis-alerta" class="alert"></div>
       <div class="card">
@@ -199,7 +197,7 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
           <label class="flabel">Horario disponivel</label>
           <div class="slot-list" id="vis-slots"></div>
           <div class="slot-extra-row">
-            <input type="time" id="vis-extra-hr" placeholder="Outro horario">
+            <input type="time" id="vis-extra-hr">
             <button class="slot-extra-btn" onclick="visExtraSlot()">+ Adicionar</button>
           </div>
         </div>
@@ -221,7 +219,7 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
               <option value="1 Periodo" data-u="2">1 Periodo</option>
               <option value="2 Periodo" data-u="2">2 Periodo</option>
             </select>
-            <div id="vis-seg-aviso" class="unidade-aviso"></div>
+            <div id="vis-seg-aviso" class="seg-aviso"></div>
           </div>
           <div class="frow"><label class="flabel">Agendado por</label><input type="text" id="vis-agendador" placeholder="Seu nome"></div>
           <div class="frow"><label class="flabel">Observacoes (opcional)</label><textarea id="vis-obs" placeholder="Informacoes adicionais..."></textarea></div>
@@ -229,17 +227,12 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
         </div>
       </div>
     </div>
+
+    <!-- BLOQUEAR -->
     <div id="vis-bloquear" class="sec">
       <div id="bloq-alerta" class="alert"></div>
       <div class="card">
-        <div class="sec-label">Bloquear horario de visita</div>
-        <div class="frow">
-          <label class="flabel">Unidade</label>
-          <div class="unit-tabs" style="margin-bottom:0;">
-            <button class="unit-tab u1 active" id="bloq-u1" onclick="bloqUnidade(1)">Unidade 1</button>
-            <button class="unit-tab u2" id="bloq-u2" onclick="bloqUnidade(2)">Unidade 2</button>
-          </div>
-        </div>
+        <div class="sec-label">Bloquear horario — ambas as unidades</div>
         <div class="frow"><label class="flabel">Data</label><input type="date" id="bloq-data" onchange="bloqRenderSlots()"></div>
         <div class="frow">
           <label class="flabel">Horario</label>
@@ -258,6 +251,8 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
         </div>
       </div>
     </div>
+
+    <!-- SEMANA VISITAS -->
     <div id="vis-semana" class="sec">
       <div class="legend">
         <div class="legend-item"><div class="legend-dot visita-u1"></div>Visita U1</div>
@@ -271,13 +266,10 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
       </div>
       <div id="vis-dcols"></div>
     </div>
+
+    <!-- LISTA VISITAS -->
     <div id="vis-lista" class="sec">
       <div class="stats" id="vis-stats"></div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot visita-u1"></div>Visita U1</div>
-        <div class="legend-item"><div class="legend-dot visita-u2"></div>Visita U2</div>
-        <div class="legend-item"><div class="legend-dot bloq"></div>Bloqueado</div>
-      </div>
       <div class="fsel">
         <select id="vis-fu" onchange="visRenderLista()"><option value="">Todas as unidades</option><option value="1">Unidade 1</option><option value="2">Unidade 2</option></select>
         <select id="vis-fp" onchange="visRenderLista()"><option value="f">Proximos</option><option value="t">Todos</option><option value="p">Anteriores</option></select>
@@ -288,395 +280,433 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
 </div>
 
 <script>
-var SK_SALA='escola-sala-v5', SK_VIS='escola-vis-v5';
-var salaDados=[], visDados=[];
-var salaWoff=0, visWoff=0;
-var salaUnid=1, visUnid=1, bloqUnid=1;
-var visHrSel=null, bloqHrSel=null;
-var SLOTS={1:['10:30','18:20'],2:['09:30','10:30','18:20'],3:['09:30','10:30','18:20'],4:['09:30','10:30','18:20'],5:['09:30','10:30']};
+var SK_SALA = 'escola-sala-final';
+var SK_VIS  = 'escola-vis-final';
+var salaDados = [];
+var visDados  = [];
+var salaWoff  = 0;
+var visWoff   = 0;
+var salaUnid  = 1;
+var visUnid   = 1;
+var visHrSel  = null;
+var bloqHrSel = null;
 
-function load(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return[];}}
-function save(k,d){try{localStorage.setItem(k,JSON.stringify(d));}catch(e){}}
-function hoje(){return new Date().toISOString().split('T')[0];}
-function fmt(ds){var p=ds.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
-function toMin(t){var p=t.split(':');return +p[0]*60+ +p[1];}
-function semDates(off){
-  var now=new Date(),day=now.getDay(),mon=new Date(now);
-  mon.setDate(now.getDate()-(day===0?6:day-1)+off*7);
-  return Array.from({length:5},function(_,i){var d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+var SLOTS = {
+  1: ['10:30','18:20'],
+  2: ['09:30','10:30','18:20'],
+  3: ['09:30','10:30','18:20'],
+  4: ['09:30','10:30','18:20'],
+  5: ['09:30','10:30']
+};
+
+function loadDados(k) {
+  try { return JSON.parse(localStorage.getItem(k)) || []; } catch(e) { return []; }
 }
-function slotsParaDia(ds){var d=new Date(ds+'T12:00:00');return SLOTS[d.getDay()]||[];}
-function isOcupado(dt,hr,u){return visDados.some(function(v){return v.date===dt&&v.horario===hr&&v.unidade===u;});}
-function isBloq(dt,hr,u){return visDados.some(function(v){return v.date===dt&&v.horario===hr&&v.unidade===u&&v.tipo==='bloqueio';});}
+function saveDados(k, d) {
+  try { localStorage.setItem(k, JSON.stringify(d)); } catch(e) {}
+}
+function hoje() { return new Date().toISOString().split('T')[0]; }
+function fmt(ds) { var p = ds.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function toMin(t) { var p = t.split(':'); return +p[0]*60 + +p[1]; }
+function semDates(off) {
+  var now = new Date(), day = now.getDay(), mon = new Date(now);
+  mon.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + off * 7);
+  return Array.from({length:5}, function(_,i) { var d = new Date(mon); d.setDate(mon.getDate()+i); return d; });
+}
+function slotsParaDia(ds) {
+  var d = new Date(ds + 'T12:00:00');
+  return SLOTS[d.getDay()] || [];
+}
+function isOcupado(dt, hr, u) {
+  return visDados.some(function(v) { return v.date===dt && v.horario===hr && v.unidade===u && v.tipo==='visita'; });
+}
+function isBloqueado(dt, hr) {
+  return visDados.some(function(v) { return v.date===dt && v.horario===hr && v.tipo==='bloqueio'; });
+}
 
-function trocarModulo(m){
-  document.getElementById('modulo-sala').className='modulo'+(m==='sala'?' on':'');
-  document.getElementById('modulo-visita').className='modulo'+(m==='visita'?' on':'');
-  document.querySelectorAll('.mod-tab').forEach(function(b){
+// MODULO
+function trocarModulo(m) {
+  document.getElementById('modulo-sala').className   = 'modulo' + (m==='sala'   ? ' on' : '');
+  document.getElementById('modulo-visita').className = 'modulo' + (m==='visita' ? ' on' : '');
+  document.querySelectorAll('.mod-tab').forEach(function(b) {
     b.classList.remove('active');
-    if(m==='sala'&&b.classList.contains('sala'))b.classList.add('active');
-    if(m==='visita'&&b.classList.contains('visita'))b.classList.add('active');
+    if (m==='sala'   && b.classList.contains('sala'))   b.classList.add('active');
+    if (m==='visita' && b.classList.contains('visita')) b.classList.add('active');
   });
   window.scrollTo(0,0);
-  if(m==='sala'){salaRenderSemana();salaRenderLista();salaRenderStats();}
-  if(m==='visita'){visRenderSlots();visRenderSemana();visRenderLista();visStats();}
+  if (m==='sala')   { salaRenderSemana(); salaRenderLista(); salaRenderStats(); }
+  if (m==='visita') { visRenderSlots(); visRenderSemana(); visRenderLista(); visStats(); }
 }
 
 // SALA
-function salaUnidade(u){
-  salaUnid=u;
-  document.getElementById('sala-u1').className='unit-tab u1'+(u===1?' active':'');
-  document.getElementById('sala-u2').className='unit-tab u2'+(u===2?' active':'');
-  document.getElementById('sala-btn-conf').className='btn-confirm btn-u'+(u===1?'1':'2');
+function salaUnidade(u) {
+  salaUnid = u;
+  document.getElementById('sala-u1').className = 'unit-tab u1' + (u===1 ? ' active' : '');
+  document.getElementById('sala-u2').className = 'unit-tab u2' + (u===2 ? ' active' : '');
+  document.getElementById('sala-btn-conf').className = 'btn-confirm btn-u' + (u===1 ? '1' : '2');
 }
-function salaAba(n){
-  ['agendar','semana','lista'].forEach(function(x){
-    document.getElementById('sala-'+x).className='sec'+(x===n?' on':'');
-    document.getElementById('sala-nav-'+x).className='nav-tab'+(x===n?' active':'');
+function salaAba(n) {
+  ['agendar','semana','lista'].forEach(function(x) {
+    document.getElementById('sala-'+x).className     = 'sec' + (x===n ? ' on' : '');
+    document.getElementById('sala-nav-'+x).className = 'nav-tab' + (x===n ? ' active' : '');
   });
   window.scrollTo(0,0);
-  if(n==='semana')salaRenderSemana();
-  if(n==='lista'){salaRenderLista();salaRenderStats();}
+  if (n==='semana') salaRenderSemana();
+  if (n==='lista')  { salaRenderLista(); salaRenderStats(); }
 }
-function salaAlerta(msg,tipo){
-  var el=document.getElementById('sala-alerta');
-  el.textContent=msg;el.className='alert '+tipo;el.style.display='block';
-  setTimeout(function(){el.style.display='none';},5000);
+function salaAlerta(msg, tipo) {
+  var el = document.getElementById('sala-alerta');
+  el.textContent = msg; el.className = 'alert ' + tipo; el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 5000);
 }
-function salaAgendar(){
-  var nome=document.getElementById('sala-nome').value.trim();
-  var resp=document.getElementById('sala-resp').value;
-  var titulo=document.getElementById('sala-titulo').value.trim();
-  var dt=document.getElementById('sala-data').value;
-  var ini=document.getElementById('sala-ini').value;
-  var fim=document.getElementById('sala-fim').value;
-  var obs=document.getElementById('sala-obs').value.trim();
-  if(!nome||!resp||!titulo||!dt||!ini||!fim)return salaAlerta('Preencha todos os campos obrigatorios.','err');
-  if(toMin(ini)>=toMin(fim))return salaAlerta('O horario de termino deve ser apos o inicio.','err');
-  if(salaDados.some(function(a){return a.unidade===salaUnid&&a.date===dt&&toMin(ini)<toMin(a.fim)&&toMin(fim)>toMin(a.ini);}))
-    return salaAlerta('Conflito de horario! Ja existe uma reuniao neste periodo.','err');
-  salaDados.push({id:Date.now(),unidade:salaUnid,nome:nome,titulo:titulo,resp:resp,date:dt,ini:ini,fim:fim,obs:obs});
-  save(SK_SALA,salaDados);
-  salaAlerta('Agendamento confirmado na Unidade '+salaUnid+'!','ok');
-  ['sala-nome','sala-titulo','sala-ini','sala-fim','sala-obs'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('sala-resp').value='';
-  document.getElementById('sala-data').value=hoje();
+function salaAgendar() {
+  var nome  = document.getElementById('sala-nome').value.trim();
+  var resp  = document.getElementById('sala-resp').value;
+  var titulo= document.getElementById('sala-titulo').value.trim();
+  var dt    = document.getElementById('sala-data').value;
+  var ini   = document.getElementById('sala-ini').value;
+  var fim   = document.getElementById('sala-fim').value;
+  var obs   = document.getElementById('sala-obs').value.trim();
+  if (!nome||!resp||!titulo||!dt||!ini||!fim) return salaAlerta('Preencha todos os campos obrigatorios.','err');
+  if (toMin(ini) >= toMin(fim)) return salaAlerta('O horario de termino deve ser apos o inicio.','err');
+  var conf = salaDados.some(function(a) {
+    return a.unidade===salaUnid && a.date===dt && toMin(ini)<toMin(a.fim) && toMin(fim)>toMin(a.ini);
+  });
+  if (conf) return salaAlerta('Conflito de horario! Ja existe uma reuniao neste periodo.','err');
+  salaDados.push({id:Date.now(), unidade:salaUnid, nome:nome, titulo:titulo, resp:resp, date:dt, ini:ini, fim:fim, obs:obs});
+  saveDados(SK_SALA, salaDados);
+  salaAlerta('Agendamento confirmado na Unidade ' + salaUnid + '!','ok');
+  ['sala-nome','sala-titulo','sala-ini','sala-fim','sala-obs'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('sala-resp').value = '';
+  document.getElementById('sala-data').value = hoje();
 }
-function salaRenderSemana(){
-  var days=semDates(salaWoff),dn=['Segunda','Terca','Quarta','Quinta','Sexta'],td=hoje();
-  var d0=days[0],d4=days[4];
-  document.getElementById('sala-wlbl').textContent=d0.getDate()+'/'+(d0.getMonth()+1)+' - '+d4.getDate()+'/'+(d4.getMonth()+1);
-  document.getElementById('sala-dcols').innerHTML=days.map(function(d,i){
-    var ds=d.toISOString().split('T')[0],isH=ds===td;
-    var db=salaDados.filter(function(a){return a.date===ds;}).sort(function(a,b){return a.ini.localeCompare(b.ini);});
-    var c=db.length?db.map(function(a){
+function salaRenderSemana() {
+  var days = semDates(salaWoff);
+  var dn   = ['Segunda','Terca','Quarta','Quinta','Sexta'];
+  var td   = hoje();
+  var d0   = days[0], d4 = days[4];
+  document.getElementById('sala-wlbl').textContent = d0.getDate()+'/'+(d0.getMonth()+1)+' - '+d4.getDate()+'/'+(d4.getMonth()+1);
+  document.getElementById('sala-dcols').innerHTML = days.map(function(d,i) {
+    var ds  = d.toISOString().split('T')[0];
+    var isH = ds === td;
+    var db  = salaDados.filter(function(a) { return a.date===ds; }).sort(function(a,b) { return a.ini.localeCompare(b.ini); });
+    var c   = db.length ? db.map(function(a) {
       return '<div class="bpill u'+a.unidade+'">[U'+a.unidade+'] '+a.titulo+'<span class="bsub">'+a.ini+' - '+a.fim+' &bull; '+a.nome+'</span></div>';
-    }).join(''):'<div class="empty-day">Sem reunioes</div>';
+    }).join('') : '<div class="empty-day">Sem reunioes</div>';
     return '<div class="dcol"><div class="dhdr'+(isH?' hoje':'')+'"><span class="dname">'+dn[i]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</span>'+(isH?'<span class="dhoje-badge">Hoje</span>':'')+' </div>'+c+'</div>';
   }).join('');
 }
-function salaRenderStats(){
-  var td=hoje(),wd=semDates(0).map(function(d){return d.toISOString().split('T')[0];});
-  var hj=salaDados.filter(function(a){return a.date===td;}).length;
-  var sm=salaDados.filter(function(a){return wd.indexOf(a.date)>=0;}).length;
-  document.getElementById('sala-stats').innerHTML=
+function salaRenderStats() {
+  var td   = hoje();
+  var wd   = semDates(0).map(function(d) { return d.toISOString().split('T')[0]; });
+  var hj   = salaDados.filter(function(a) { return a.date===td; }).length;
+  var sm   = salaDados.filter(function(a) { return wd.indexOf(a.date) >= 0; }).length;
+  document.getElementById('sala-stats').innerHTML =
     '<div class="stat"><div class="stat-n">'+hj+'</div><div class="stat-l">Hoje</div></div>'+
     '<div class="stat"><div class="stat-n">'+sm+'</div><div class="stat-l">Esta semana</div></div>'+
     '<div class="stat"><div class="stat-n">'+salaDados.length+'</div><div class="stat-l">Total</div></div>';
 }
-function salaCancelar(id){
-  var ag=salaDados.find(function(a){return a.id===id;});
-  if(!ag)return;
-  var q=prompt('Digite seu nome para cancelar:');
-  if(!q)return;
-  if(q.trim().toLowerCase()!==ag.nome.toLowerCase())return alert('Apenas "'+ag.nome+'" pode cancelar.');
-  if(!confirm('Cancelar "'+ag.titulo+'" em '+fmt(ag.date)+'?'))return;
-  salaDados=salaDados.filter(function(a){return a.id!==id;});
-  save(SK_SALA,salaDados);salaRenderLista();salaRenderStats();salaRenderSemana();
+function salaCancelar(id) {
+  var ag = salaDados.find(function(a) { return a.id===id; });
+  if (!ag) return;
+  var q = prompt('Digite seu nome para cancelar:');
+  if (!q) return;
+  if (q.trim().toLowerCase() !== ag.nome.toLowerCase()) return alert('Apenas "'+ag.nome+'" pode cancelar.');
+  if (!confirm('Cancelar "'+ag.titulo+'" em '+fmt(ag.date)+'?')) return;
+  salaDados = salaDados.filter(function(a) { return a.id!==id; });
+  saveDados(SK_SALA, salaDados);
+  salaRenderLista(); salaRenderStats(); salaRenderSemana();
 }
-function salaRenderLista(){
-  var fu=document.getElementById('sala-fu').value;
-  var fr=document.getElementById('sala-fr').value;
-  var fp=document.getElementById('sala-fp').value;
-  var td=hoje(),items=salaDados.slice();
-  if(fu)items=items.filter(function(a){return String(a.unidade)===fu;});
-  if(fr)items=items.filter(function(a){return a.resp===fr;});
-  if(fp==='f')items=items.filter(function(a){return a.date>=td;});
-  if(fp==='p')items=items.filter(function(a){return a.date<td;});
-  items.sort(function(a,b){return(a.date+a.ini).localeCompare(b.date+b.ini);});
-  var c=document.getElementById('sala-lcont');
-  if(!items.length){c.innerHTML='<div class="empty">Nenhum agendamento encontrado</div>';return;}
-  c.innerHTML=items.map(function(a){
-    var past=a.date<td;
-    return '<div class="litem u'+a.unidade+'"><span class="lunit u'+a.unidade+'">Unidade '+a.unidade+'</span>'+
+function salaRenderLista() {
+  var fu = document.getElementById('sala-fu').value;
+  var fr = document.getElementById('sala-fr').value;
+  var fp = document.getElementById('sala-fp').value;
+  var td = hoje();
+  var items = salaDados.slice();
+  if (fu) items = items.filter(function(a) { return String(a.unidade)===fu; });
+  if (fr) items = items.filter(function(a) { return a.resp===fr; });
+  if (fp==='f') items = items.filter(function(a) { return a.date>=td; });
+  if (fp==='p') items = items.filter(function(a) { return a.date<td; });
+  items.sort(function(a,b) { return (a.date+a.ini).localeCompare(b.date+b.ini); });
+  var c = document.getElementById('sala-lcont');
+  if (!items.length) { c.innerHTML = '<div class="empty">Nenhum agendamento encontrado</div>'; return; }
+  c.innerHTML = items.map(function(a) {
+    var past = a.date < td;
+    return '<div class="litem u'+a.unidade+'">'+
+      '<span class="lunit u'+a.unidade+'">Unidade '+a.unidade+'</span>'+
       '<div class="ltitle">'+a.titulo+'</div>'+
       '<div class="lmeta">'+fmt(a.date)+' &bull; '+a.ini+' - '+a.fim+'</div>'+
       '<div class="lmeta">Setor: '+a.resp+'</div>'+
       '<div class="lmeta">Agendado por: '+a.nome+'</div>'+
-      (a.obs?'<div class="lmeta" style="font-style:italic;margin-top:3px">'+a.obs+'</div>':'')+
+      (a.obs ? '<div class="lmeta" style="font-style:italic;margin-top:3px">'+a.obs+'</div>' : '')+
       '<span class="badge '+(past?'past':'ativo')+'">'+(past?'Realizado':'Agendado')+'</span><br>'+
       '<button class="btn-cancel" onclick="salaCancelar('+a.id+')">Cancelar agendamento</button></div>';
   }).join('');
 }
 
 // VISITAS
-function visAba(n){
-  ['agendar','bloquear','semana','lista'].forEach(function(x){
-    document.getElementById('vis-'+x).className='sec'+(x===n?' on':'');
-    document.getElementById('vis-nav-'+x).className='nav-tab'+(x===n?' active':'');
+function visAba(n) {
+  ['agendar','bloquear','semana','lista'].forEach(function(x) {
+    document.getElementById('vis-'+x).className     = 'sec' + (x===n ? ' on' : '');
+    document.getElementById('vis-nav-'+x).className = 'nav-tab' + (x===n ? ' active' : '');
   });
   window.scrollTo(0,0);
-  if(n==='agendar')visRenderSlots();
-  if(n==='bloquear')bloqRenderSlots();
-  if(n==='semana')visRenderSemana();
-  if(n==='lista'){visRenderLista();visStats();}
+  if (n==='agendar')  visRenderSlots();
+  if (n==='bloquear') bloqRenderSlots();
+  if (n==='semana')   visRenderSemana();
+  if (n==='lista')    { visRenderLista(); visStats(); }
 }
-function visAlerta(msg,tipo){
-  var el=document.getElementById('vis-alerta');
-  el.textContent=msg;el.className='alert '+tipo;el.style.display='block';
-  setTimeout(function(){el.style.display='none';},5000);
+function visAlerta(msg, tipo) {
+  var el = document.getElementById('vis-alerta');
+  el.textContent = msg; el.className = 'alert ' + tipo; el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 5000);
 }
-function visRenderSlots(){
-  var dt=document.getElementById('vis-data').value;
-  var cont=document.getElementById('vis-slots');
-  visHrSel=null;
-  document.getElementById('vis-form').style.display='none';
-  if(!dt){cont.innerHTML='<div style="color:#999;font-size:16px;padding:8px 0">Selecione uma data acima</div>';return;}
-  var slots=slotsParaDia(dt);
-  if(!slots.length){cont.innerHTML='<div style="color:#999;font-size:16px;padding:8px 0">Nao ha horarios fixos para este dia da semana</div>';return;}
-  cont.innerHTML=slots.map(function(hr){
-    var b=isBloq(dt,hr,visUnid),o=!b&&isOcupado(dt,hr,visUnid);
-    var cls=b?'bloqueado-slot':o?'ocupado':'livre';
-    var lbl=b?'Bloqueado':o?'Ocupado':'Disponivel';
-    var oc=(!b&&!o)?'onclick="visSelSlot(\''+hr+'\')"':'';
+function visRenderSlots() {
+  var dt   = document.getElementById('vis-data').value;
+  var cont = document.getElementById('vis-slots');
+  visHrSel = null;
+  document.getElementById('vis-form').style.display = 'none';
+  if (!dt) { cont.innerHTML = '<div style="color:#999;font-size:16px;padding:8px 0">Selecione uma data acima</div>'; return; }
+  var slots = slotsParaDia(dt);
+  if (!slots.length) { cont.innerHTML = '<div style="color:#999;font-size:16px;padding:8px 0">Nao ha horarios fixos para este dia da semana</div>'; return; }
+  cont.innerHTML = slots.map(function(hr) {
+    var b   = isBloqueado(dt, hr);
+    var o   = !b && isOcupado(dt, hr, visUnid);
+    var cls = b ? 'bloqueado-slot' : o ? 'ocupado' : 'livre';
+    var lbl = b ? 'Bloqueado' : o ? 'Ocupado' : 'Disponivel';
+    var oc  = (!b && !o) ? 'onclick="visSelSlot(\'' + hr + '\')"' : '';
     return '<button class="slot-btn '+cls+'" '+oc+(b||o?' disabled':'')+'>'+
       '<span>'+hr+'</span><span class="slot-status '+cls+'">'+lbl+'</span></button>';
   }).join('');
 }
-function visRenderSlotsKeep(){
-  var dt=document.getElementById('vis-data').value;
-  var cont=document.getElementById('vis-slots');
-  if(!dt)return;
-  var slots=slotsParaDia(dt);
-  if(!slots.length)return;
-  cont.innerHTML=slots.map(function(hr){
-    var b=isBloq(dt,hr,visUnid),o=!b&&isOcupado(dt,hr,visUnid);
-    var cls=b?'bloqueado-slot':o?'ocupado':'livre';
-    var lbl=b?'Bloqueado':o?'Ocupado':'Disponivel';
-    var oc=(!b&&!o)?'onclick="visSelSlot(\''+hr+'\')"':'';
+function visRenderSlotsKeep() {
+  var dt   = document.getElementById('vis-data').value;
+  var cont = document.getElementById('vis-slots');
+  if (!dt) return;
+  var slots = slotsParaDia(dt);
+  if (!slots.length) return;
+  cont.innerHTML = slots.map(function(hr) {
+    var b   = isBloqueado(dt, hr);
+    var o   = !b && isOcupado(dt, hr, visUnid);
+    var cls = b ? 'bloqueado-slot' : o ? 'ocupado' : 'livre';
+    var lbl = b ? 'Bloqueado' : o ? 'Ocupado' : 'Disponivel';
+    var oc  = (!b && !o) ? 'onclick="visSelSlot(\'' + hr + '\')"' : '';
     return '<button class="slot-btn '+cls+'" '+oc+(b||o?' disabled':'')+'>'+
       '<span>'+hr+'</span><span class="slot-status '+cls+'">'+lbl+'</span></button>';
   }).join('');
 }
-function visSelSlot(hr){
-  visHrSel=hr;
-  document.getElementById('vis-hr-sel').textContent=hr;
-  document.getElementById('vis-form').style.display='block';
+function visSelSlot(hr) {
+  visHrSel = hr;
+  document.getElementById('vis-hr-sel').textContent = hr;
+  document.getElementById('vis-form').style.display = 'block';
 }
-function visExtraSlot(){
-  var hr=document.getElementById('vis-extra-hr').value;
-  var dt=document.getElementById('vis-data').value;
-  if(!hr)return visAlerta('Informe um horario.','err');
-  if(!dt)return visAlerta('Selecione uma data primeiro.','err');
-  if(isBloq(dt,hr,visUnid))return visAlerta('Este horario esta bloqueado.','err');
-  if(isOcupado(dt,hr,visUnid))return visAlerta('Este horario ja esta ocupado.','err');
+function visExtraSlot() {
+  var hr = document.getElementById('vis-extra-hr').value;
+  var dt = document.getElementById('vis-data').value;
+  if (!hr) return visAlerta('Informe um horario.','err');
+  if (!dt) return visAlerta('Selecione uma data primeiro.','err');
+  if (isBloqueado(dt, hr)) return visAlerta('Este horario esta bloqueado.','err');
+  if (isOcupado(dt, hr, visUnid)) return visAlerta('Este horario ja esta ocupado.','err');
   visSelSlot(hr);
 }
-function visAutoUnidade(){
-  var sel=document.getElementById('vis-segmento');
-  var opt=sel.options[sel.selectedIndex];
-  var u=opt.getAttribute('data-u');
-  var aviso=document.getElementById('vis-seg-aviso');
-  if(!u){aviso.style.display='none';aviso.className='unidade-aviso';return;}
-  u=parseInt(u);
-  var campos={
-    'vis-resp-nome':document.getElementById('vis-resp-nome').value,
-    'vis-telefone':document.getElementById('vis-telefone').value,
-    'vis-crianca':document.getElementById('vis-crianca').value,
-    'vis-nasc':document.getElementById('vis-nasc').value,
-    'vis-agendador':document.getElementById('vis-agendador').value,
-    'vis-obs':document.getElementById('vis-obs').value
+function visAutoUnidade() {
+  var sel  = document.getElementById('vis-segmento');
+  var opt  = sel.options[sel.selectedIndex];
+  var u    = opt.getAttribute('data-u');
+  var av   = document.getElementById('vis-seg-aviso');
+  if (!u) { av.style.display = 'none'; av.className = 'seg-aviso'; return; }
+  u = parseInt(u);
+  var campos = {
+    'vis-resp-nome': document.getElementById('vis-resp-nome').value,
+    'vis-telefone':  document.getElementById('vis-telefone').value,
+    'vis-crianca':   document.getElementById('vis-crianca').value,
+    'vis-nasc':      document.getElementById('vis-nasc').value,
+    'vis-agendador': document.getElementById('vis-agendador').value,
+    'vis-obs':       document.getElementById('vis-obs').value
   };
-  visUnid=u;
-  var seg=sel.value;
-  aviso.className='unidade-aviso u'+u;
-  aviso.style.display='block';
-  if(u===1){
-    aviso.innerHTML='<strong style="font-size:19px;">UNIDADE 1</strong><br>Segmento: <strong>'+seg+'</strong><br><span style="font-size:14px;opacity:.8">Bercario &bull; Maternal 1 &bull; Maternal 2</span>';
+  visUnid = u;
+  var seg = sel.value;
+  av.className = 'seg-aviso u' + u;
+  av.style.display = 'block';
+  if (u === 1) {
+    av.innerHTML = '<strong style="font-size:19px;">UNIDADE 1</strong><br>Segmento: <strong>'+seg+'</strong><br><span style="font-size:14px;opacity:.8">Bercario &bull; Maternal 1 &bull; Maternal 2</span>';
   } else {
-    aviso.innerHTML='<strong style="font-size:19px;">UNIDADE 2</strong><br>Segmento: <strong>'+seg+'</strong><br><span style="font-size:14px;opacity:.8">Maternal 3 &bull; 1 Periodo &bull; 2 Periodo</span>';
+    av.innerHTML = '<strong style="font-size:19px;">UNIDADE 2</strong><br>Segmento: <strong>'+seg+'</strong><br><span style="font-size:14px;opacity:.8">Maternal 3 &bull; 1 Periodo &bull; 2 Periodo</span>';
   }
   visRenderSlotsKeep();
-  Object.keys(campos).forEach(function(id){document.getElementById(id).value=campos[id];});
-  if(visHrSel){
-    document.getElementById('vis-form').style.display='block';
-    document.getElementById('vis-hr-sel').textContent=visHrSel;
+  Object.keys(campos).forEach(function(id) { document.getElementById(id).value = campos[id]; });
+  if (visHrSel) {
+    document.getElementById('vis-form').style.display = 'block';
+    document.getElementById('vis-hr-sel').textContent = visHrSel;
   }
 }
-function visAgendar(){
-  var dt=document.getElementById('vis-data').value;
-  var hr=visHrSel;
-  var rn=document.getElementById('vis-resp-nome').value.trim();
-  var tel=document.getElementById('vis-telefone').value.trim();
-  var cr=document.getElementById('vis-crianca').value.trim();
-  var nasc=document.getElementById('vis-nasc').value;
-  var seg=document.getElementById('vis-segmento').value;
-  var ag=document.getElementById('vis-agendador').value.trim();
-  var obs=document.getElementById('vis-obs').value.trim();
-  if(!dt||!hr||!rn||!tel||!cr||!nasc||!seg||!ag)return visAlerta('Preencha todos os campos obrigatorios.','err');
-  if(isOcupado(dt,hr,visUnid))return visAlerta('Este horario ja foi preenchido.','err');
-  visDados.push({id:Date.now(),tipo:'visita',unidade:visUnid,date:dt,horario:hr,respNome:rn,telefone:tel,crianca:cr,nascimento:nasc,segmento:seg,agendador:ag,obs:obs});
-  save(SK_VIS,visDados);
+function visAgendar() {
+  var dt   = document.getElementById('vis-data').value;
+  var hr   = visHrSel;
+  var rn   = document.getElementById('vis-resp-nome').value.trim();
+  var tel  = document.getElementById('vis-telefone').value.trim();
+  var cr   = document.getElementById('vis-crianca').value.trim();
+  var nasc = document.getElementById('vis-nasc').value;
+  var seg  = document.getElementById('vis-segmento').value;
+  var ag   = document.getElementById('vis-agendador').value.trim();
+  var obs  = document.getElementById('vis-obs').value.trim();
+  if (!dt||!hr||!rn||!tel||!cr||!nasc||!seg||!ag) return visAlerta('Preencha todos os campos obrigatorios.','err');
+  if (isBloqueado(dt, hr)) return visAlerta('Este horario esta bloqueado.','err');
+  if (isOcupado(dt, hr, visUnid)) return visAlerta('Este horario ja foi preenchido.','err');
+  visDados.push({id:Date.now(), tipo:'visita', unidade:visUnid, date:dt, horario:hr, respNome:rn, telefone:tel, crianca:cr, nascimento:nasc, segmento:seg, agendador:ag, obs:obs});
+  saveDados(SK_VIS, visDados);
   visAlerta('Visita confirmada para '+fmt(dt)+' as '+hr+'!','ok');
-  ['vis-resp-nome','vis-telefone','vis-crianca','vis-agendador','vis-obs','vis-extra-hr'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('vis-nasc').value='';
-  document.getElementById('vis-segmento').value='';
-  document.getElementById('vis-seg-aviso').style.display='none';
-  document.getElementById('vis-form').style.display='none';
-  visHrSel=null;visUnid=1;
+  ['vis-resp-nome','vis-telefone','vis-crianca','vis-agendador','vis-obs','vis-extra-hr'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('vis-nasc').value = '';
+  document.getElementById('vis-segmento').value = '';
+  document.getElementById('vis-seg-aviso').style.display = 'none';
+  document.getElementById('vis-form').style.display = 'none';
+  visHrSel = null; visUnid = 1;
   visRenderSlots();
 }
 
 // BLOQUEIO
-function bloqUnidade(u){
-  bloqUnid=u;
-  document.getElementById('bloq-u1').className='unit-tab u1'+(u===1?' active':'');
-  document.getElementById('bloq-u2').className='unit-tab u2'+(u===2?' active':'');
-  bloqRenderSlots();
+function bloqAlerta(msg, tipo) {
+  var el = document.getElementById('bloq-alerta');
+  el.textContent = msg; el.className = 'alert ' + tipo; el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 5000);
 }
-function bloqAlerta(msg,tipo){
-  var el=document.getElementById('bloq-alerta');
-  el.textContent=msg;el.className='alert '+tipo;el.style.display='block';
-  setTimeout(function(){el.style.display='none';},5000);
-}
-function bloqRenderSlots(){
-  var dt=document.getElementById('bloq-data').value;
-  var cont=document.getElementById('bloq-slots');
-  bloqHrSel=null;
-  document.getElementById('bloq-form').style.display='none';
-  if(!dt){cont.innerHTML='<div style="color:#999;font-size:16px;padding:8px 0">Selecione uma data acima</div>';return;}
-  var slots=slotsParaDia(dt);
-  if(!slots.length){cont.innerHTML='<div style="color:#999;font-size:16px;padding:8px 0">Nao ha horarios fixos para este dia</div>';return;}
-  cont.innerHTML=slots.map(function(hr){
-    var b=isBloq(dt,hr,bloqUnid),o=!b&&isOcupado(dt,hr,bloqUnid);
-    var cls=b?'bloqueado-slot':o?'ocupado':'livre';
-    var lbl=b?'Ja bloqueado':o?'Ocupado':'Disponivel';
-    var oc=(!b&&!o)?'onclick="bloqSelSlot(\''+hr+'\')"':'';
-    return '<button class="slot-btn '+cls+'" '+oc+(b||o?' disabled':'')+'>'+
+function bloqRenderSlots() {
+  var dt   = document.getElementById('bloq-data').value;
+  var cont = document.getElementById('bloq-slots');
+  bloqHrSel = null;
+  document.getElementById('bloq-form').style.display = 'none';
+  if (!dt) { cont.innerHTML = '<div style="color:#999;font-size:16px;padding:8px 0">Selecione uma data acima</div>'; return; }
+  var slots = slotsParaDia(dt);
+  if (!slots.length) { cont.innerHTML = '<div style="color:#999;font-size:16px;padding:8px 0">Nao ha horarios fixos para este dia</div>'; return; }
+  cont.innerHTML = slots.map(function(hr) {
+    var b   = isBloqueado(dt, hr);
+    var cls = b ? 'bloqueado-slot' : 'livre';
+    var lbl = b ? 'Ja bloqueado' : 'Disponivel';
+    var oc  = !b ? 'onclick="bloqSelSlot(\'' + hr + '\')"' : '';
+    return '<button class="slot-btn '+cls+'" '+oc+(b?' disabled':'')+'>'+
       '<span>'+hr+'</span><span class="slot-status '+cls+'">'+lbl+'</span></button>';
   }).join('');
 }
-function bloqSelSlot(hr){
-  bloqHrSel=hr;
-  document.getElementById('bloq-hr-sel').textContent=hr;
-  document.getElementById('bloq-form').style.display='block';
+function bloqSelSlot(hr) {
+  bloqHrSel = hr;
+  document.getElementById('bloq-hr-sel').textContent = hr;
+  document.getElementById('bloq-form').style.display = 'block';
 }
-function bloqExtraSlot(){
-  var hr=document.getElementById('bloq-extra-hr').value;
-  var dt=document.getElementById('bloq-data').value;
-  if(!hr)return bloqAlerta('Informe um horario.','err');
-  if(!dt)return bloqAlerta('Selecione uma data primeiro.','err');
-  if(isBloq(dt,hr,bloqUnid))return bloqAlerta('Ja esta bloqueado.','err');
-  if(isOcupado(dt,hr,bloqUnid))return bloqAlerta('Ja existe uma visita neste horario.','err');
+function bloqExtraSlot() {
+  var hr = document.getElementById('bloq-extra-hr').value;
+  var dt = document.getElementById('bloq-data').value;
+  if (!hr) return bloqAlerta('Informe um horario.','err');
+  if (!dt) return bloqAlerta('Selecione uma data primeiro.','err');
+  if (isBloqueado(dt, hr)) return bloqAlerta('Ja esta bloqueado.','err');
   bloqSelSlot(hr);
 }
-function bloqConfirmar(){
-  var dt=document.getElementById('bloq-data').value;
-  var hr=bloqHrSel;
-  var motivo=document.getElementById('bloq-motivo').value.trim();
-  var quem=document.getElementById('bloq-quem').value.trim();
-  if(!dt||!hr||!motivo||!quem)return bloqAlerta('Preencha todos os campos.','err');
-  visDados.push({id:Date.now(),tipo:'bloqueio',unidade:bloqUnid,date:dt,horario:hr,motivo:motivo,quem:quem});
-  save(SK_VIS,visDados);
-  bloqAlerta('Horario '+hr+' bloqueado em '+fmt(dt)+'!','ok');
-  document.getElementById('bloq-motivo').value='';
-  document.getElementById('bloq-quem').value='';
-  document.getElementById('bloq-form').style.display='none';
-  bloqHrSel=null;bloqRenderSlots();
+function bloqConfirmar() {
+  var dt     = document.getElementById('bloq-data').value;
+  var hr     = bloqHrSel;
+  var motivo = document.getElementById('bloq-motivo').value.trim();
+  var quem   = document.getElementById('bloq-quem').value.trim();
+  if (!dt||!hr||!motivo||!quem) return bloqAlerta('Preencha todos os campos.','err');
+  visDados.push({id:Date.now(), tipo:'bloqueio', date:dt, horario:hr, motivo:motivo, quem:quem});
+  saveDados(SK_VIS, visDados);
+  bloqAlerta('Horario '+hr+' bloqueado em '+fmt(dt)+' para ambas as unidades!','ok');
+  document.getElementById('bloq-motivo').value = '';
+  document.getElementById('bloq-quem').value   = '';
+  document.getElementById('bloq-form').style.display = 'none';
+  bloqHrSel = null;
+  bloqRenderSlots();
 }
 
 // VISITAS SEMANA / LISTA
-function visRenderSemana(){
-  var days=semDates(visWoff),dn=['Segunda','Terca','Quarta','Quinta','Sexta'],td=hoje();
-  var d0=days[0],d4=days[4];
-  document.getElementById('vis-wlbl').textContent=d0.getDate()+'/'+(d0.getMonth()+1)+' - '+d4.getDate()+'/'+(d4.getMonth()+1);
-  document.getElementById('vis-dcols').innerHTML=days.map(function(d,i){
-    var ds=d.toISOString().split('T')[0],isH=ds===td;
-    var db=visDados.filter(function(a){return a.date===ds;}).sort(function(a,b){return a.horario.localeCompare(b.horario);});
-    var c=db.length?db.map(function(a){
-      if(a.tipo==='bloqueio')return '<div class="bpill bloq">[U'+a.unidade+'] BLOQUEADO '+a.horario+'<span class="bsub">'+a.motivo+'</span></div>';
+function visRenderSemana() {
+  var days = semDates(visWoff);
+  var dn   = ['Segunda','Terca','Quarta','Quinta','Sexta'];
+  var td   = hoje();
+  var d0   = days[0], d4 = days[4];
+  document.getElementById('vis-wlbl').textContent = d0.getDate()+'/'+(d0.getMonth()+1)+' - '+d4.getDate()+'/'+(d4.getMonth()+1);
+  document.getElementById('vis-dcols').innerHTML = days.map(function(d,i) {
+    var ds  = d.toISOString().split('T')[0];
+    var isH = ds === td;
+    var db  = visDados.filter(function(a) { return a.date===ds; }).sort(function(a,b) { return a.horario.localeCompare(b.horario); });
+    var c   = db.length ? db.map(function(a) {
+      if (a.tipo==='bloqueio') return '<div class="bpill bloq">BLOQUEADO '+a.horario+' (ambas unidades)<span class="bsub">'+a.motivo+'</span></div>';
       return '<div class="bpill visita-u'+a.unidade+'">[U'+a.unidade+'] '+a.horario+' &bull; '+a.crianca+'<span class="bsub">'+a.respNome+' &bull; '+a.segmento+'</span></div>';
-    }).join(''):'<div class="empty-day">Sem visitas</div>';
+    }).join('') : '<div class="empty-day">Sem visitas</div>';
     return '<div class="dcol"><div class="dhdr'+(isH?' hoje':'')+'"><span class="dname">'+dn[i]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</span>'+(isH?'<span class="dhoje-badge">Hoje</span>':'')+' </div>'+c+'</div>';
   }).join('');
 }
-function visStats(){
-  var td=hoje(),wd=semDates(0).map(function(d){return d.toISOString().split('T')[0];});
-  var vis=visDados.filter(function(a){return a.tipo==='visita';});
-  var hj=vis.filter(function(a){return a.date===td;}).length;
-  var sm=vis.filter(function(a){return wd.indexOf(a.date)>=0;}).length;
-  document.getElementById('vis-stats').innerHTML=
+function visStats() {
+  var td  = hoje();
+  var wd  = semDates(0).map(function(d) { return d.toISOString().split('T')[0]; });
+  var vis = visDados.filter(function(a) { return a.tipo==='visita'; });
+  var hj  = vis.filter(function(a) { return a.date===td; }).length;
+  var sm  = vis.filter(function(a) { return wd.indexOf(a.date) >= 0; }).length;
+  document.getElementById('vis-stats').innerHTML =
     '<div class="stat"><div class="stat-n">'+hj+'</div><div class="stat-l">Hoje</div></div>'+
     '<div class="stat"><div class="stat-n">'+sm+'</div><div class="stat-l">Esta semana</div></div>'+
     '<div class="stat"><div class="stat-n">'+vis.length+'</div><div class="stat-l">Total</div></div>';
 }
-function visCancelar(id){
-  var ag=visDados.find(function(a){return a.id===id;});
-  if(!ag)return;
-  if(ag.tipo==='bloqueio'){
-    if(!confirm('Remover bloqueio de '+fmt(ag.date)+' as '+ag.horario+'?'))return;
+function visCancelar(id) {
+  var ag = visDados.find(function(a) { return a.id===id; });
+  if (!ag) return;
+  if (ag.tipo==='bloqueio') {
+    if (!confirm('Remover bloqueio de '+fmt(ag.date)+' as '+ag.horario+'?')) return;
   } else {
-    var q=prompt('Digite seu nome para cancelar:');
-    if(!q)return;
-    if(q.trim().toLowerCase()!==ag.agendador.toLowerCase())return alert('Apenas "'+ag.agendador+'" pode cancelar esta visita.');
-    if(!confirm('Cancelar visita de "'+ag.crianca+'" em '+fmt(ag.date)+' as '+ag.horario+'?'))return;
+    var q = prompt('Digite seu nome para cancelar:');
+    if (!q) return;
+    if (q.trim().toLowerCase() !== ag.agendador.toLowerCase()) return alert('Apenas "'+ag.agendador+'" pode cancelar esta visita.');
+    if (!confirm('Cancelar visita de "'+ag.crianca+'" em '+fmt(ag.date)+' as '+ag.horario+'?')) return;
   }
-  visDados=visDados.filter(function(a){return a.id!==id;});
-  save(SK_VIS,visDados);visRenderLista();visStats();visRenderSemana();visRenderSlots();bloqRenderSlots();
+  visDados = visDados.filter(function(a) { return a.id!==id; });
+  saveDados(SK_VIS, visDados);
+  visRenderLista(); visStats(); visRenderSemana(); visRenderSlots(); bloqRenderSlots();
 }
-function visRenderLista(){
-  var fu=document.getElementById('vis-fu').value;
-  var fp=document.getElementById('vis-fp').value;
-  var td=hoje(),items=visDados.slice();
-  if(fu)items=items.filter(function(a){return String(a.unidade)===fu;});
-  if(fp==='f')items=items.filter(function(a){return a.date>=td;});
-  if(fp==='p')items=items.filter(function(a){return a.date<td;});
-  items.sort(function(a,b){return(a.date+a.horario).localeCompare(b.date+b.horario);});
-  var c=document.getElementById('vis-lcont');
-  if(!items.length){c.innerHTML='<div class="empty">Nenhum registro encontrado</div>';return;}
-  c.innerHTML=items.map(function(a){
-    var past=a.date<td;
-    if(a.tipo==='bloqueio'){
-      return '<div class="litem bloq"><span class="lunit bloq">Bloqueado — Unidade '+a.unidade+'</span>'+
+function visRenderLista() {
+  var fu    = document.getElementById('vis-fu').value;
+  var fp    = document.getElementById('vis-fp').value;
+  var td    = hoje();
+  var items = visDados.slice();
+  if (fu) items = items.filter(function(a) { return String(a.unidade)===fu; });
+  if (fp==='f') items = items.filter(function(a) { return a.date>=td; });
+  if (fp==='p') items = items.filter(function(a) { return a.date<td; });
+  items.sort(function(a,b) { return (a.date+a.horario).localeCompare(b.date+b.horario); });
+  var c = document.getElementById('vis-lcont');
+  if (!items.length) { c.innerHTML = '<div class="empty">Nenhum registro encontrado</div>'; return; }
+  c.innerHTML = items.map(function(a) {
+    var past = a.date < td;
+    if (a.tipo==='bloqueio') {
+      return '<div class="litem bloq">'+
+        '<span class="lunit bloq">Bloqueado — Ambas as unidades</span>'+
         '<div class="ltitle">'+a.horario+' &bull; '+fmt(a.date)+'</div>'+
         '<div class="lmeta">Motivo: '+a.motivo+'</div>'+
         '<div class="lmeta">Por: '+a.quem+'</div>'+
         '<span class="badge bloqueado">Bloqueado</span><br>'+
         '<button class="btn-cancel" onclick="visCancelar('+a.id+')">Remover bloqueio</button></div>';
     }
-    return '<div class="litem visita-u'+a.unidade+'"><span class="lunit visita">Visita — Unidade '+a.unidade+'</span>'+
+    return '<div class="litem visita-u'+a.unidade+'">'+
+      '<span class="lunit visita">Visita — Unidade '+a.unidade+'</span>'+
       '<div class="ltitle">'+a.crianca+'</div>'+
       '<div class="lmeta">'+fmt(a.date)+' &bull; '+a.horario+'</div>'+
       '<div class="lmeta">Responsavel: '+a.respNome+' &bull; '+a.telefone+'</div>'+
       '<div class="lmeta">Segmento: '+a.segmento+'</div>'+
       '<div class="lmeta">Nascimento: '+fmt(a.nascimento)+'</div>'+
       '<div class="lmeta">Agendado por: '+a.agendador+'</div>'+
-      (a.obs?'<div class="lmeta" style="font-style:italic;margin-top:3px">'+a.obs+'</div>':'')+
+      (a.obs ? '<div class="lmeta" style="font-style:italic;margin-top:3px">'+a.obs+'</div>' : '')+
       '<span class="badge '+(past?'past':'ativo')+'">'+(past?'Realizado':'Agendado')+'</span><br>'+
       '<button class="btn-cancel" onclick="visCancelar('+a.id+')">Cancelar visita</button></div>';
   }).join('');
 }
 
 // INIT
-salaDados=load(SK_SALA);
-visDados=load(SK_VIS);
-document.getElementById('sala-data').value=hoje();
-document.getElementById('sala-data').min=hoje();
-document.getElementById('vis-data').value=hoje();
-document.getElementById('vis-data').min=hoje();
-document.getElementById('bloq-data').value=hoje();
-salaRenderSemana();salaRenderLista();salaRenderStats();
-visRenderSlots();visRenderSemana();visRenderLista();visStats();
+salaDados = loadDados(SK_SALA);
+visDados  = loadDados(SK_VIS);
+document.getElementById('sala-data').value = hoje();
+document.getElementById('sala-data').min   = hoje();
+document.getElementById('vis-data').value  = hoje();
+document.getElementById('vis-data').min    = hoje();
+document.getElementById('bloq-data').value = hoje();
+salaRenderSemana(); salaRenderLista(); salaRenderStats();
+visRenderSlots(); visRenderSemana(); visRenderLista(); visStats();
 </script>
 </body>
 </html>
