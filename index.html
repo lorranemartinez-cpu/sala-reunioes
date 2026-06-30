@@ -212,7 +212,7 @@ textarea{padding:12px 14px;min-height:76px;resize:none;line-height:1.5;}
           <div class="frow"><label class="flabel">Data de nascimento</label><input type="date" id="vis-nasc"></div>
           <div class="frow">
             <label class="flabel">Segmento de interesse</label>
-            <select id="vis-segmento" onchange="visAutoUnidade()">
+            <select id="vis-seguimento" onchange="visAutoUnidade()">
               <option value="" data-u="">Selecione</option>
               <option value="Bercario" data-u="1">Bercario</option>
               <option value="Maternal 1" data-u="1">Maternal 1</option>
@@ -281,7 +281,8 @@ var API = 'https://script.google.com/macros/s/AKfycbwctFoENM7E7JsRUyfsY26hOac_Rk
 // Limpa valores de data/hora que o Google Sheets pode converter automaticamente
 function limparCampo(v){
   if(v===null||v===undefined) return '';
-  v = String(v);
+  v = String(v).trim();
+  if(v.charAt(0)==="'") v = v.substring(1);
   // Caso o Sheets tenha convertido para data completa tipo 1899-12-30T13:36:28.000Z (hora) ou 2026-07-06T03:00:00.000Z (data)
   var m = v.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
   if(m){
@@ -294,6 +295,12 @@ function limparCampo(v){
       return ano+'-'+mes+'-'+dia;
     }
   }
+  // Normaliza horarios soltos tipo "10:30:00" -> "10:30"
+  var m2 = v.match(/^(\d{1,2}):(\d{2})(:\d{2})?$/);
+  if(m2){
+    var h=m2[1].padStart(2,'0'), mi=m2[2];
+    return h+':'+mi;
+  }
   return v;
 }
 function limparRegistro(r){
@@ -301,6 +308,9 @@ function limparRegistro(r){
   var camposHora = ['horario','ini','fim'];
   camposData.forEach(function(c){ if(r[c]!==undefined) r[c]=limparCampo(r[c]).split('T')[0]; });
   camposHora.forEach(function(c){ if(r[c]!==undefined) r[c]=limparCampo(r[c]); });
+  if(r.tipo!==undefined) r.tipo=String(r.tipo).trim();
+  if(r.modulo!==undefined) r.modulo=String(r.modulo).trim();
+  if(r.id!==undefined) r.id=String(r.id).trim();
   return r;
 }
 var salaDados = [];
@@ -357,11 +367,20 @@ function apiGet(cb) {
     .catch(function(){hideSync();if(cb)cb();});
 }
 
+function protegerTexto(v){
+  // Forca o Google Sheets a tratar como texto puro, evitando conversao automatica de data/hora
+  if(v===null||v===undefined||v==='') return '';
+  return "'" + String(v);
+}
 function apiAdd(record, cb) {
   showSync('Salvando...');
+  var protegido = Object.assign({}, record);
+  ['date','horario','ini','fim','nascimento'].forEach(function(c){
+    if(protegido[c]!==undefined && protegido[c]!=='') protegido[c]=protegerTexto(protegido[c]);
+  });
   fetch(API, {
     method:'POST',
-    body: JSON.stringify({action:'add', record:record})
+    body: JSON.stringify({action:'add', record:protegido})
   })
   .then(function(r){return r.json();})
   .then(function(){hideSync();if(cb)cb();})
@@ -426,7 +445,7 @@ function salaAgendar() {
   if(toMin(ini)>=toMin(fim)) return salaAlerta('O horario de termino deve ser apos o inicio.','err');
   var conf=salaDados.some(function(a){return a.unidade==salaUnid&&a.date===dt&&toMin(ini)<toMin(a.fim)&&toMin(fim)>toMin(a.ini);});
   if(conf) return salaAlerta('Conflito de horario! Ja existe uma reuniao neste periodo.','err');
-  var rec={id:Date.now(),modulo:'sala',tipo:'reuniao',unidade:salaUnid,nome:nome,titulo:titulo,resp:resp,date:dt,ini:ini,fim:fim,obs:obs,horario:'',respNome:'',telefone:'',crianca:'',nascimento:'',segmento:'',agendador:'',motivo:'',quem:''};
+  var rec={id:Date.now(),modulo:'sala',tipo:'reuniao',unidade:salaUnid,nome:nome,titulo:titulo,resp:resp,date:dt,ini:ini,fim:fim,obs:obs,horario:'',respNome:'',telefone:'',crianca:'',nascimento:'',seguimento:'',agendador:'',motivo:'',quem:''};
   salaDados.push(rec);
   apiAdd(rec, function(){
     salaAlerta('Agendamento confirmado na Unidade '+salaUnid+'!','ok');
@@ -550,7 +569,7 @@ function visExtraSlot(){
   visSelSlot(hr);
 }
 function visAutoUnidade(){
-  var sel=document.getElementById('vis-segmento');
+  var sel=document.getElementById('vis-seguimento');
   var opt=sel.options[sel.selectedIndex];
   var u=opt.getAttribute('data-u');
   var av=document.getElementById('vis-seg-aviso');
@@ -574,19 +593,19 @@ function visAgendar(){
   var tel=document.getElementById('vis-telefone').value.trim();
   var cr=document.getElementById('vis-crianca').value.trim();
   var nasc=document.getElementById('vis-nasc').value;
-  var seg=document.getElementById('vis-segmento').value;
+  var seg=document.getElementById('vis-seguimento').value;
   var ag=document.getElementById('vis-agendador').value.trim();
   var obs=document.getElementById('vis-obs').value.trim();
   if(!dt||!hr||!rn||!tel||!cr||!nasc||!seg||!ag)return visAlerta('Preencha todos os campos obrigatorios.','err');
   if(isBloqueado(dt,hr))return visAlerta('Este horario esta bloqueado.','err');
   if(isOcupado(dt,hr,visUnid))return visAlerta('Este horario ja foi preenchido.','err');
-  var rec={id:Date.now(),modulo:'visita',tipo:'visita',unidade:visUnid,date:dt,horario:hr,respNome:rn,telefone:tel,crianca:cr,nascimento:nasc,segmento:seg,agendador:ag,obs:obs,nome:'',titulo:'',resp:'',ini:'',fim:'',motivo:'',quem:''};
+  var rec={id:Date.now(),modulo:'visita',tipo:'visita',unidade:visUnid,date:dt,horario:hr,respNome:rn,telefone:tel,crianca:cr,nascimento:nasc,seguimento:seg,agendador:ag,obs:obs,nome:'',titulo:'',resp:'',ini:'',fim:'',motivo:'',quem:''};
   visDados.push(rec);
   apiAdd(rec,function(){
     visAlerta('Visita confirmada para '+fmt(dt)+' as '+hr+'!','ok');
     ['vis-resp-nome','vis-telefone','vis-crianca','vis-agendador','vis-obs','vis-extra-hr'].forEach(function(id){document.getElementById(id).value='';});
     document.getElementById('vis-nasc').value='';
-    document.getElementById('vis-segmento').value='';
+    document.getElementById('vis-seguimento').value='';
     document.getElementById('vis-seg-aviso').style.display='none';
     document.getElementById('vis-form').style.display='none';
     visHrSel=null;visUnid=1;
@@ -630,7 +649,7 @@ function bloqConfirmar(){
   var motivo=document.getElementById('bloq-motivo').value.trim();
   var quem=document.getElementById('bloq-quem').value.trim();
   if(!dt||!hr||!motivo||!quem)return bloqAlerta('Preencha todos os campos.','err');
-  var rec={id:Date.now(),modulo:'visita',tipo:'bloqueio',unidade:0,date:dt,horario:hr,motivo:motivo,quem:quem,nome:'',titulo:'',resp:'',ini:'',fim:'',respNome:'',telefone:'',crianca:'',nascimento:'',segmento:'',agendador:'',obs:''};
+  var rec={id:Date.now(),modulo:'visita',tipo:'bloqueio',unidade:0,date:dt,horario:hr,motivo:motivo,quem:quem,nome:'',titulo:'',resp:'',ini:'',fim:'',respNome:'',telefone:'',crianca:'',nascimento:'',seguimento:'',agendador:'',obs:''};
   visDados.push(rec);
   apiAdd(rec,function(){
     bloqAlerta('Horario '+hr+' bloqueado em '+fmt(dt)+' para ambas as unidades!','ok');
@@ -648,7 +667,7 @@ function visRenderSemana(){
     var db=visDados.filter(function(a){return String(a.date)===String(ds);}).sort(function(a,b){return String(a.horario).localeCompare(String(b.horario));});
     var c=db.length?db.map(function(a){
       if(a.tipo==='bloqueio')return '<div class="bpill bloq">BLOQUEADO '+a.horario+' (ambas unidades)<span class="bsub">'+a.motivo+'</span></div>';
-      return '<div class="bpill visita-u'+a.unidade+'">[U'+a.unidade+'] '+a.horario+' &bull; '+a.crianca+'<span class="bsub">'+a.respNome+' &bull; '+a.segmento+'</span></div>';
+      return '<div class="bpill visita-u'+a.unidade+'">[U'+a.unidade+'] '+a.horario+' &bull; '+a.crianca+'<span class="bsub">'+a.respNome+' &bull; '+a.seguimento+'</span></div>';
     }).join(''):'<div class="empty-day">Sem visitas</div>';
     return '<div class="dcol"><div class="dhdr'+(isH?' hoje':'')+'"><span class="dname">'+dn[i]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</span>'+(isH?'<span class="dhoje-badge">Hoje</span>':'')+' </div>'+c+'</div>';
   }).join('');
@@ -701,7 +720,7 @@ function visRenderLista(){
       '<div class="ltitle">'+a.crianca+'</div>'+
       '<div class="lmeta">'+fmt(a.date)+' &bull; '+a.horario+'</div>'+
       '<div class="lmeta">Responsavel: '+a.respNome+' &bull; '+a.telefone+'</div>'+
-      '<div class="lmeta">Segmento: '+a.segmento+'</div>'+
+      '<div class="lmeta">Segmento: '+a.seguimento+'</div>'+
       '<div class="lmeta">Nascimento: '+fmt(a.nascimento)+'</div>'+
       '<div class="lmeta">Agendado por: '+a.agendador+'</div>'+
       (a.obs?'<div class="lmeta" style="font-style:italic;margin-top:3px">'+a.obs+'</div>':'')+
